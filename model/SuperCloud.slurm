@@ -1,0 +1,45 @@
+#!/bin/bash
+
+#SBATCH --partition=xeon-p8
+#SBATCH -o run.%j.out
+#SBATCH --no-requeue
+#SBATCH --time=4-00:00
+#SBATCH --mem-per-cpu=4000MB
+#SBATCH --exclusive
+
+# Print parameters
+echo "Number of nodes: $SLURM_NNODES"
+echo "Number of tasks: $SLURM_NTASKS"
+echo "Number of CPUs per task: $SLURM_CPUS_PER_TASK"
+
+# Load MPI
+module purge
+module load intel-oneapi/2023.1
+
+# Double thread on each CPU
+if [ $mode -eq 0 ]; then
+    export OMP_NUM_THREADS=$(( 2 * SLURM_CPUS_PER_TASK ))
+else
+    export OMP_NUM_THREADS=2
+fi
+
+# Run
+ulimit -s unlimited
+mpirun -np $SLURM_NTASKS ./a.out
+
+# Clean
+./clean.sh
+
+# Convert outputs to .dta
+module purge
+module load anaconda/2023a
+if [ $mode -eq 2 ]; then
+    python POST_plot_fit.py
+elif [ $mode -eq 4 ]; then
+    python ToPcl_ComparePolicies.py
+    python POST_results_existing.py
+elif [ $mode -eq 8 ]; then
+    python ToPcl_OptimalPolicy.py
+    python POST_results_optimal.py
+fi
+module purge

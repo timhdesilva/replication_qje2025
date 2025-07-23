@@ -1,0 +1,15 @@
+*.mod
+*.log
+*.out
+a.out.dSYM/
+.DS_Store
+README.txt
+Output/*
+Cleaned/*
+*.ipynb_checkpoints*
+
+!Output/.gitkeep
+!Cleaned/.gitkeep
+.codegpt
+.claude
+
