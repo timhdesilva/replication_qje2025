@@ -8,13 +8,8 @@ idir = maindir + '/Input'
 odir = maindir + '/Output'
 adir = maindir + '/Cleaned'
 
-# MHcf used in Main_OptimalPolicy.f90
-MHcf = 2
-
 # List of additional columns in OptimalPolicy.txt files outside of parameters
 op_cols = ['-V0', 'budget', 'penterm', 'objective', 'iter_pen']
-
-
 
 #######################################################################################
 # FORMATTING OF OPTIMAL POLICY RESULTS
@@ -50,30 +45,16 @@ for p in policies:
     df1['gain_cl'] = -1*df1['-V0']/cg1.query('g == 0')['V'].iloc[0] - 1
     df0['EV'] = np.interp(-1*df0['-V0'], ev0['V'], ev0['w'])
     df1['EV'] = np.interp(-1*df1['-V0'], ev1['V'], ev1['w'])
-    # Assign which of df0 or df1 is counterfactual, and set last element of counterfactual to negative 1, since that was
-    # the evaluation with labor supply not fixed
-    if MHcf == 1:
-        df0['counterfactual'] = 0
-        df1['counterfactual'] = 1
-        if p > 1:
-            cf_eval = df1.iloc[[-1]]
-            df1 = df1.iloc[:-1]
-            cf_eval['penterm'] = np.nan
-            cf_eval['counterfactual'] = -1
-            cf_eval['gain_c'] = np.interp(-1*cf_eval['-V0'], cg0['V'], cg0['g'])
-            cf_eval['gain_cl'] = -1*cf_eval['-V0']/cg0.query('g == 0')['V'].iloc[0] - 1
-            cf_eval['EV'] = np.interp(-1*cf_eval['-V0'], ev0['V'], ev0['w'])
-    elif MHcf == 2:
-        df0['counterfactual'] = 1
-        df1['counterfactual'] = 0
-        if p > 1:
-            cf_eval = df0.iloc[[-1]]
-            df0 = df0.iloc[:-1]
-            cf_eval['penterm'] = np.nan
-            cf_eval['counterfactual'] = -1
-            cf_eval['gain_c'] = np.interp(-1*cf_eval['-V0'], cg1['V'], cg1['g'])
-            cf_eval['gain_cl'] = -1*cf_eval['-V0']/cg1.query('g == 0')['V'].iloc[0] - 1
-            cf_eval['EV'] = np.interp(-1*cf_eval['-V0'], ev1['V'], ev1['w'])
+    df0['counterfactual'] = 1
+    df1['counterfactual'] = 0
+    if p > 1:
+        cf_eval = df0.iloc[[-1]]
+        df0 = df0.iloc[:-1]
+        cf_eval['penterm'] = np.nan
+        cf_eval['counterfactual'] = -1
+        cf_eval['gain_c'] = np.interp(-1*cf_eval['-V0'], cg1['V'], cg1['g'])
+        cf_eval['gain_cl'] = -1*cf_eval['-V0']/cg1.query('g == 0')['V'].iloc[0] - 1
+        cf_eval['EV'] = np.interp(-1*cf_eval['-V0'], ev1['V'], ev1['w'])
     # Take last value from each dataframe, which is what TikTak said was best, and concatenate, adding to df list
     if p == 1:
         dfs[p] = pd.concat([df0.iloc[[-1]], df1.iloc[[-1]]], ignore_index = True)
@@ -83,8 +64,6 @@ for p in policies:
 # Output to pickle
 with open(f'{adir}/OptimalPolicies.pcl', 'wb') as f:
     pickle.dump(dfs, f)
-# with open(f'{adir}/OptimalPolicies_Rounded.pcl', 'wb') as f:
-#     pickle.dump(dfs_r, f)
 
 
 

@@ -15,7 +15,6 @@ MODULE ValueFunction_mod
    USE EconFunctions, only: lowerA
    USE OptimizeWork_mod, only: OptimizeC, OptimizeCL_A
    USE OptimizeRet_mod, only: OptimizeRet
-   USE OptParameters, only: WarnFileNum, WarnToFile
 
    IMPLICIT NONE
 

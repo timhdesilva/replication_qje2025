@@ -194,8 +194,7 @@ series_txt(model_d.params[['has_debt_initial', 'age_d']], f'{momdir}/debt_premiu
 series_txt(model_d.HC0_se[['has_debt_initial', 'age_d']], f'{sedir}/debt_premium.txt')
 gc.collect()
 
-# Calculate average income at oldest age you can observe among has_initial_debt = 1,
-# after projecting out cohort effects
+# Calculate average income at oldest age you can observe among has_initial_debt = 1
 maxD_age = df_ma['age'].max()
 print(f'Maximum age of individuals for whom you can identify has_debt: {maxD_age}')
 model_l = sm.OLS(df_ma['log_wage'], df_ma[[x for x in df.columns if 'cohort_' in x]]).fit(cov_type = 'HC0')

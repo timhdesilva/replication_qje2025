@@ -477,17 +477,6 @@ CONTAINS
       yin = (yi - y(llc(2)))/(y(llc(2) + 1) - y(llc(2)))
       zin = (zi - z(llc(3)))/(z(llc(3) + 1) - z(llc(3)))
 
-      ! Formula
-!Vxyz = &
-! V000 * (1 - x) * (1 - y) * (1 - z) +
-! V100 *    x    * (1 - y) * (1 - z) +
-! V010 * (1 - x) *    y    * (1 - z) +
-! V001 * (1 - x) * (1 - y) *    z    +
-! V011 * (1 - x) *    y    *    z    +
-! V101 *    x    * (1 - y) *    z    +
-! V110 *    x    *    y    * (1 - z) +
-! V111 *    x    *    y    *    z
-
       ! CRRA
       if (crra == 1) then
          interp3d = &
@@ -554,18 +543,6 @@ CONTAINS
       xin = (xi - x(llc(1)))/(x(llc(1) + 1) - x(llc(1)))
       yin = (yi - y(llc(2)))/(y(llc(2) + 1) - y(llc(2)))
       zin = (zi - z(llc(3)))/(z(llc(3) + 1) - z(llc(3)))
-
-      ! Formula
-!Vxyz = &
-! V000 * (1 - x) * (1 - y) * (1 - z) +
-! V100 *    x    * (1 - y) * (1 - z) +
-! V010 * (1 - x) *    y    * (1 - z) +
-! V001 * (1 - x) * (1 - y) *    z    +
-! V011 * (1 - x) *    y    *    z    +
-! V101 *    x    * (1 - y) *    z    +
-! V110 *    x    *    y    * (1 - z) +
-! V111 *    x    *    y    *    z
-
       ! CRRA
       if (crra == 1) then
          interp3d_pt = &
@@ -605,7 +582,6 @@ CONTAINS
    END FUNCTION interp3d_pt
 
 ! 4D linear interpolation routine
-   !! Written by Tim on 8/13/22
    real(dp) FUNCTION interp4d(crra, crracurv, nx, x, ny, y, nz, z, nq, q, f, xi, yi, zi, qi, talk_in)
       ! set crra=1 if you want quasi-linear interpolation for CRRA
 
@@ -818,7 +794,6 @@ CONTAINS
    end function interp4d_pt
 
    ! 5D linear interpolation routine
-   !! Written by Tim on 10/22/21
    real(dp) FUNCTION interp5d(crra, crracurv, nx, x, ny, y, nz, z, nq, q, nw, w, f, xi, yi, zi, qi, wi, talk_in)
       ! set crra=1 if you want quasi-linear interpolation for CRRA
 
@@ -2238,114 +2213,6 @@ CONTAINS
       END IF
    END SUBROUTINE RandomDiscrete1
 
-!################################################################################################################################
-! Find root of one-dimensional function by interpolatory newton method
-! Author: https://www.ce-fortran.com/
-! Github download: https://github.com/fabiankindermann/ce-fortran/
-! Adapted by Tim on 10/21/21
-!################################################################################################################################
-   subroutine newton_interpol(x, funcv, check_return)
-
-      IMPLICIT NONE
-
-      ! initial guess and root of the function
-      real(dp), intent(inout) :: x
-
-      ! check is true if newton_interpol converged to local minimum or can make no
-      !     further progress
-      logical, intent(out), optional :: check_return
-
-      ! Parameters for algorithm
-      real(dp), parameter :: tbox_gftol_root = 1d-8
-      integer, parameter  :: itermax_root = 200
-
-      ! Other variables
-      real(dp), parameter :: eps = epsilon(x)
-      real(dp) :: tolf, tolmin
-      real(dp), parameter :: tolx = eps
-      real(dp) :: x1, x2, f1, f2, xnew, fnew, h
-      integer :: its
-
-      ! Function
-      real(dp), external :: funcv
-
-      ! set tolerance levels
-      tolf = tbox_gftol_root
-      tolmin = tbox_gftol_root
-      if (present(check_return)) check_return = .false.
-
-      ! initialize values
-      x1 = x
-      h = 1d-6*max(abs(x), 0.01d0)
-      x2 = x + h
-
-      ! calculate function values at x1, x2
-      f1 = funcv(x1)
-      f2 = funcv(x2)
-
-      ! check if already in zero
-      if (abs(f1) < 0.01d0*tolf) then
-         x = x1
-         if (present(check_return)) check_return = .false.
-         return
-      end if
-
-      if (abs(f2) < 0.01d0*tolf) then
-         x = x2
-         if (present(check_return)) check_return = .false.
-         return
-      end if
-
-      if (abs((1d0 - f1/f2)/(x2 - x1)) < tolmin .or. &
-          abs((1d0 - f1/f2)) < epsilon(1d0)) then
-         x = x1
-         if (present(check_return)) check_return = .true.
-         return
-      end if
-
-      ! start iteration
-      do its = 1, itermax_root
-
-         ! calculate new point xnew
-         xnew = x2 - (x2 - x1)/(1d0 - f1/f2)
-
-         ! calculate new function value
-         fnew = funcv(xnew)
-
-         ! check wether function is small enough
-         if (abs(fnew) < tolf) then
-            x = xnew
-            if (present(check_return)) check_return = .false.
-            return
-         end if
-
-         ! check whether you are in a minimum or cannot proceed further
-         if (2d0*abs(xnew - x2) < tolx*abs(xnew + x2)) then
-            x = x2
-            if (present(check_return)) check_return = .true.
-            return
-         end if
-
-         ! else set new data and repeat step
-         x1 = x2
-         f1 = f2
-         x2 = xnew
-         f2 = fnew
-
-         if (abs((1d0 - f1/f2)/(x2 - x1)) < tolmin .or. &
-             abs((1d0 - f1/f2)) < epsilon(1d0)) then
-            x = x1
-            if (present(check_return)) check_return = .true.
-            return
-         end if
-      end do
-
-      ! throw warning if newton didn't converge
-      if (present(check_return)) check_return = .true.
-
-      x = xnew
-
-   end subroutine newton_interpol
 
 !################################################################################################################################
 ! Find root of one-dimensional function by Bi-Section Method
@@ -2869,17 +2736,6 @@ CONTAINS
       end do
    END SUBROUTINE IdentityMatrix
 
-   ! Function to make scaled identity matrix such that moments will be percentage deviations
-   SUBROUTINE ScaledIMatrix(size, model, mat)
-      integer, intent(in) :: size
-      real(dp), intent(in), dimension(size, 1) :: model
-      real(dp), intent(out), dimension(size, size) :: mat
-      integer :: i1
-      mat = 0d0
-      do i1 = 1, size
-         mat(i1, i1) = MAX(0.01d0, model(i1, 1))**(-2d0)
-      end do
-   END SUBROUTINE ScaledIMatrix
 
    ! Function to make weighting matrix such that moments will be arc-sin deviation
    SUBROUTINE ArcSinMatrix(size, model, data, mat)
@@ -2945,9 +2801,8 @@ CONTAINS
    end subroutine AGS_Sensitivity
 
    ! Calculate Hansen J stat, taking into account you might not use optimal weighting matrix
-   !! This gives you the same exact value as S/(1+S) * smm_obj(res.x) in the ase of the optimal weighting matrix.
-   !! Note: This code copies Toni's solution code from Mitsui summer school 2020, and works under the assumption
-   !! that Omega has already been divided by the sample size.
+   ! This computes the optimal weighting matrix for SMM estimation.
+   ! Note: This assumes Omega has already been divided by the sample size.
    real(dp) function JTest(n, k, S, ndata, G, W, Omega, gdiff)
       integer, intent(in) :: n, k
       real(dp), intent(in) :: S, ndata, G(n, k), W(n, n), Omega(n, n), gdiff(n, 1)

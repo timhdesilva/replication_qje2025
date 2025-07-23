@@ -2,8 +2,6 @@ import math
 
 # Function that tells you the required HELP rate
 def HELPrate(income, year):
-    # income: HELP repayment income
-    # year: end of tax year
     if year == 1989:
         if income <= 21999:
             rate = 0
@@ -611,8 +609,6 @@ def HELPrate(income, year):
 
 # Function that tells you the required HELP payment
 def HELPpayment(income, year):
-    # income: HELP repayment income
-    # year: end of tax year
     rate = HELPrate(income, year)
     repayment = rate*income
     repayment = math.floor(repayment)

@@ -14,7 +14,7 @@ MODULE types
       real(dp) :: theta
       real(dp) :: epsln
       real(dp) :: Plabor
-      real(dp) :: calvo ! lower values mean higher calvo shock probability
+      real(dp) :: calvo
    END TYPE state_t
 
    ! Gridpoints of continuous state variables

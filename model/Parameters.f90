@@ -8,32 +8,21 @@ MODULE Parameters
    real(sp) :: dummy_sp
    real(dp) :: dummy_dp
 
-! +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-! Options
-! +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-! Code Operation
-   !! Outputs from Simulations
-   integer, parameter :: SaveLCPanel = 0 ! save simulated panel
-   !! Miscellaneous
-   integer :: RunMode ! keep track of Main_.f90 file you're running
-
-! Model Specification
-   !! Preferences
-   integer :: FixLabor = 0 ! turn off labor supply decision
+! Variable that keeps track of which Main_.f90 file you're running
+   integer :: RunMode
 
 ! +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ! Demographic parameters
 ! +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ! Age parameters
-   integer, parameter :: FirstAge = 22, &       ! Youngest age
-                         JWork = 43, & ! Nbr of work periods
-                         JRet = 26, &   ! Nbr of retirement periods (includes 1 extra year for certain death)
-                         JTot = JWork + JRet     ! Total nbr of periods
+   integer, parameter :: FirstAge = 22
+   integer, parameter :: JWork = 43
+   integer, parameter :: JRet = 26
+   integer, parameter :: JTot = JWork + JRet
 ! Cohorts
    integer, parameter :: FirstCohort = 1963, LastCohort = 2019, n_cohorts = LastCohort - FirstCohort + 1
-! Numeraire = average annualized AWE in 2004 Australia in AUD
-   real(dp), parameter :: numeraire = 40000d0 ! ~751.90*52 = AWE*52
+! Numeraire
+   real(dp), parameter :: numeraire = 40000d0
 ! Price levels relative to 2005 based on HELP threshold inflation rate
    real(dp), parameter :: price04 = 48571d0/50929d0
    real(dp), parameter :: price06 = 36184d0/35000d0
@@ -52,8 +41,8 @@ MODULE Parameters
    integer, parameter :: NbrDebt = 11
    integer, parameter :: NbrTheta = 21
    integer, parameter :: NbrPastL = 25
-   integer, parameter :: NbrWLiqW_B = 0 ! number of liquid wealth points to place below zero (= 0 => grid spaced from lower to upper)
-   integer, parameter :: NbrRLiqW = 101 ! liquid wealth in retirement
+   integer, parameter :: NbrWLiqW_B = 0
+   integer, parameter :: NbrRLiqW = 101
    ! Grid curvature parameters
    real(dp), parameter :: gdcurve_LiqWealth = 0.2d0
    real(dp), parameter :: gdcurve_Debt = 0.35d0
@@ -64,17 +53,15 @@ MODULE Parameters
    real(dp) :: gdW_LiqW(NbrWLiqW, JWork), gdR_LiqW(NbrRLiqW, JRet)
    real(dp) :: gd_Debt(NbrDebt, JWork), gd_PastL(NbrPastL)
    ! Parameters for custom grid for theta
-   real(dp), parameter :: gdcurve_Theta = 0.7d0 ! curvature for theta grid (if too low, may get V=NaN at low wages from extrapolation)
-   real(dp), parameter :: gdsigma_Theta = 4d0 ! maximum standard deviation of theta grid
+   real(dp), parameter :: gdcurve_Theta = 0.7d0
+   real(dp), parameter :: gdsigma_Theta = 4d0
 
 ! +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ! DGPs of assets and wage rate
 ! +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ! Liquid risk-free asset
-   real(dp), parameter :: R = 1.0184d0 !1d0/0.972755660726326d0
+   real(dp), parameter :: R = 1.0184d0
 ! Wedge on borrowing rate
-!! Note: if you turn this too high, things will break when solving in retirement because there will be people who can't pay
-!! everything off by the time they die given there is no consumption floor in retirement. Values around 1d0-1.25d0 should work.
    real(dp), parameter :: wedgeB0 = 0.146d0
 ! Components of wage rate process
    real(dp) :: deltas(3), deltaEs(2), rhotheta, sigmanu, sigmai, sigmaeps, AProfile(JWork, 2)
@@ -90,7 +77,6 @@ MODULE Parameters
    integer, allocatable :: Policy(:) ! list of policies
    integer :: NbrPolicy ! number of policies
    integer :: DebtPayoff ! set to 0 if you never payoff debt
-   integer :: ForceFixedPayoff = 0 ! set to 1 if you want to force repayment with fixed debt contracts
    real(dp), parameter, dimension(7) :: HELPTsh04 = (/25347d0, 26731d0, 28805d0, 33414d0, 40328d0, 42447d0, 45628d0/)
    real(dp), parameter, dimension(9) :: HELPTsh05 = (/35000d0, 38987d0, 42972d0, 45232d0, 48621d0, 52657d0, 55429d0, &
                                                       60971d0, 64999d0/)
@@ -117,6 +103,8 @@ MODULE Parameters
    real(dp), dimension(:), allocatable :: OptimalP
    ! Whether to save simulation outputs to to txt files
    logical :: SaveSimY = .FALSE., SaveSimV = .FALSE.
+   ! Whether to fix labor supply decision
+   integer :: FixLabor = 0
 
 ! +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ! Tolerances and optimization bounds
@@ -160,10 +148,10 @@ MODULE Parameters
 ! Parallelization parameters
 ! +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    ! OpenMP parameters
-   character(10) :: NbrThreads ! Nbr of CPUs per job
+   character(10) :: NbrThreads
    ! MPI parameters
-   integer :: procid ! id of current process
-   integer :: mpiprocs  ! number of MPI processes
+   integer :: procid
+   integer :: mpiprocs
 
 ! +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ! Value functions
@@ -175,16 +163,15 @@ MODULE Parameters
 ! +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ! Simulation parameters and results
 ! +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-   integer, parameter :: maxnsim_welfare = 1400000 ! maximum number of nsim when computing welfare to stay within memory
-   integer, parameter :: nsim_op = 50000 ! nsim when doing optimal policy
-   integer, parameter :: nsim = 1600000 ! Number of individual level simulations
-   ! integer, parameter :: nsim = maxnsim_welfare
+   integer, parameter :: nsim_op = 50000
+   integer, parameter :: nsim = 1600000
    ! integer, parameter :: nsim = nsim_op
    real(dp), parameter :: nsim_dp = real(nsim, kind=dp)
-   real(dp), parameter :: pe1_sim = 0.1d0 ! probability of E=1 in simulation
-   integer, parameter :: ind_E2 = ceiling(pe1_sim*nsim_dp) ! index of first individual with E=2 in simulation when rescaling
-   integer, parameter :: realind_E2 = ceiling((1d0 - p_e)*nsim_dp)! index of first individual with E=2 in simulation when realistic
-   integer :: SMMError ! parameter to keep track of if current parameterization caused error when doing SMM
+   real(dp), parameter :: pe1_sim = 0.1d0
+   integer, parameter :: ind_E2 = ceiling(pe1_sim*nsim_dp)
+   integer, parameter :: realind_E2 = ceiling((1d0 - p_e)*nsim_dp)
+   integer :: SMMError
+   integer, parameter :: SaveLCPanel = 0
    real(dp), allocatable, dimension(:, :) :: SimY, SimWL, SimV, SimLiqWealth, SimAssets, SimLabor, SimConsumption, &
                                              SimTT, SimPanel, Lifecycle, &
                                              SimW, SimTheta, SimEps, SimRawNu, SimRawEps, SimCalvo, SimLerr
@@ -192,6 +179,6 @@ MODULE Parameters
    real(dp), allocatable, dimension(:) :: SimDebt0, SimAssets0
    integer, allocatable, dimension(:, :) :: SimFlag, SimSolType, SimSince
    integer, allocatable, dimension(:) :: SimE, SimPolicyI, SimHELPSwitchIJ, FirstIJDeath, AgeRepay
-   integer, parameter :: ncol_SimPanel = 20 ! number of stats to keep track of in individual panel
+   integer, parameter :: ncol_SimPanel = 20
 
 END MODULE Parameters

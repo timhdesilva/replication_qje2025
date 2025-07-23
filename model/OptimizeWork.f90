@@ -3,7 +3,6 @@ MODULE OptimizeWork_mod
    USE Parameters, only: dp, positiveInf, negativeInf, epsl, FixLabor, startL, size_start, minL, maxL, beta
    USE types
    USE EconFunctions, only: fixedCost, flowU, AggUV, lowerA, CalcCash
-   USE OptParameters, only: WarnFileNum, WarnToFile
    USE NelderMead, only: amoeba
    USE GoldenSection, only: min_GoldenSection
    USE EVf_mod, only: EVf
@@ -79,7 +78,7 @@ CONTAINS
       do while ((optval >= positiveInf .or. flag > 0) .and. counter + 1 <= maxNMs)
          counter = counter + 1
          start = (/startsC(counter), startsL(counter)/)
-         CALL amoeba(2, start, sol0, optval0, Objective, flag0, args) ! NOTE: No explicit boundary here, set in Objective()
+         CALL amoeba(2, start, sol0, optval0, Objective, flag0, args)
          if (optval0 < optval .or. counter .eq. 1) then
             optval = optval0
             sol = sol0
@@ -130,7 +129,7 @@ CONTAINS
          CALL wrapper_NM(args, startA, startL, solution, optval, opflag)
          OptimizeCL_A = optval
          soltype = 0
-         ! Check whether boundaries better (Nelder-Mead doesn't do this)
+         ! Check whether boundaries better
          boundaries(1, :) = args%lows
          boundaries(2, :) = args%highs
          do l1 = 1, 2
@@ -159,20 +158,6 @@ CONTAINS
          consump_opt = CalcCash(labor_opt, args%s) - savings_opt
       else
          consump_opt = 0d0
-      end if
-      ! Optimization warnings
-      if (WarnToFile .eq. 1) then
-         if (savings_opt <= args%lows(1) .and. OptimizeCL_A > negativeInf) then
-            write (WarnFileNum, *) 'Optimization warning: savings hitting lower bound of', savings_opt
-         end if
-         if (labor_opt >= args%highs(2) .and. OptimizeCL_A > negativeInf) then
-            write (WarnFileNum, *) 'Optimization warning: labor hitting upper bound of', labor_opt
-         else if (labor_opt <= args%lows(2) .and. OptimizeCL_A > negativeInf) then
-            write (WarnFileNum, *) 'Optimization warning: labor hitting lower bound of', labor_opt
-         end if
-         if (opflag >= 1 .and. soltype .ne. 1) then
-            write (WarnFileNum, *) 'WARNING: opflag greater than 0 with soltype =', soltype
-         end if
       end if
 
    end function OptimizeCL_A
@@ -237,12 +222,6 @@ CONTAINS
          consump_opt = args%highs(1) - savings_opt
       else
          consump_opt = 0d0
-      end if
-      ! Optimization warnings
-      if (WarnToFile .eq. 1) then
-         if (savings_opt <= args%lows(1) .and. OptimizeC > negativeInf) then
-            write (WarnFileNum, *) 'Optimization warning: savings hitting lower bound of', savings_opt
-         end if
       end if
 
    end function OptimizeC

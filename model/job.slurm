@@ -13,7 +13,7 @@ echo "Number of tasks: $SLURM_NTASKS"
 echo "Number of CPUs per task: $SLURM_CPUS_PER_TASK"
 
 # Double thread on each CPU
-if [ $mode -eq 0 ] || [ $mode -eq 12 ]; then
+if [ $mode -eq 0 ]; then
     export OMP_NUM_THREADS=$(( 2 * SLURM_CPUS_PER_TASK ))
 else
     export OMP_NUM_THREADS=2

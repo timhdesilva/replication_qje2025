@@ -121,7 +121,7 @@ CONTAINS
             constraintB(ij) = bmodel(1) + bmodel(2)*gd_age(ij) + bmodel(3)*(gd_age(ij)**2d0) + &
                               bmodel(4)*(gd_age(ij)**3d0) + bmodel(5)*(gd_age(ij)**4d0)
          END DO
-         constraintB(JTot) = 0d0 ! hard no borrowing in last period => can't run Ponzi scheme and die w negative wealth
+         constraintB(JTot) = 0d0
          constraintB = constraintB/numeraire ! adjust for numeraire
          IF (present(brate)) THEN
             wedgeB = brate
@@ -156,9 +156,9 @@ CONTAINS
             min_LiqW = constraintB(ij)*RA(constraintB(ij))
          else
             if (ij < JTot) then
-               min_LiqW = constraintB(JWork)*RA(constraintB(JWork))*i_dp(JRet - 1 - (ij - JWork))/i_dp(JRet - 1) ! smooth decrease from initial borrowing constraint to no Ponzi
+               min_LiqW = constraintB(JWork)*RA(constraintB(JWork))*i_dp(JRet - 1 - (ij - JWork))/i_dp(JRet - 1)
             else
-               min_LiqW = 0d0 ! no Ponzi in last period
+               min_LiqW = 0d0
             end if
          end if
          if (ij <= JWork) then
@@ -200,7 +200,6 @@ CONTAINS
 
 !---------------------------------------------------------------------------------------------------------!
 ! Simulate underlying shocks that are parameter invariant
-!! Note: in principle this could be parallelized, but then you have replicatability problems due to seeds on each CPU
 !---------------------------------------------------------------------------------------------------------!
 
    SUBROUTINE AllocateShocks

@@ -2,7 +2,7 @@ MODULE GoldenSection
 
    USE Parameters, only: positiveInf
    USE types, only: args_opt
-   USE OptParameters, only: goldentol, goldenalpha2, goldenalpha1, WarnToConsole, WarnToFile, WarnFileNum
+   USE OptParameters, only: goldentol, goldenalpha2, goldenalpha1
 
    IMPLICIT NONE
 
@@ -11,11 +11,10 @@ MODULE GoldenSection
 CONTAINS
 
 !---------------------------------------------------------------------------------------------------------!
-! Golden-Section search method for minimization if no adjustment.
-! This is based on code given in Miranda and Fackler: "Applied Computaiontal Economics and Finance" pg. 65
+! Golden-Section search method for minimization.
+! This is based on code given in Miranda and Fackler: "Applied Computational Economics and Finance" pg. 65
 ! This is a derivative-free minimizer that will only work for univariate convex functions,
 ! but is guaranteed to work in that case.
-!! Note: this is a maximizaiton routine, but here I flip it so it's a minimzation routine
 !---------------------------------------------------------------------------------------------------------!
 
    subroutine min_GoldenSection(fn, x, y, low, high, flag, args)
@@ -42,7 +41,7 @@ CONTAINS
       ! Boundaries for golden search
       a = low
       b = high
-      ! Assuming you don't consume all wealth, USE golden search method to optimize
+      ! Use golden search method to optimize
       x1 = a + goldenalpha1*(b - a)
       x2 = a + goldenalpha2*(b - a)
       f1 = -fn(x1, args)
@@ -86,13 +85,6 @@ CONTAINS
       end if
       ! Flip y sign since minimization
       y = -y
-      ! Warnings
-      if (WarnToConsole .eq. 1) then
-         if (flag == 1) print *, 'WARNING from GoldenSection: boundary value hit.'
-      end if
-      if (WarnToFile .eq. 1) then
-         if (flag == 1) write (WarnFileNum, *) 'WARNING from GoldenSection: boundary value hit.'
-      end if
       ! Silence flag so code doesn't stop
       flag = 0
 

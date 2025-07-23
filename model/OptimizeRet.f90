@@ -4,7 +4,6 @@ MODULE OptimizeRet_mod
    USE Parameters, only: dp, positiveInf, negativeInf, JTot
    USE types
    USE EconFunctions, only: flowU, AggUV, lowerA, CalcCash
-   USE OptParameters, only: WarnToFile, WarnFileNum
    USE GoldenSection, only: min_GoldenSection
    USE EVf_mod, only: EVf
 
@@ -59,14 +58,6 @@ CONTAINS
          consump_opt = args%highs(1) - savings_opt
       else
          consump_opt = 0d0
-      end if
-      ! Optimization warnings
-      if (WarnToFile .eq. 1) then
-         if (savings_opt >= args%highs(1) .and. OptimizeRet > negativeInf) then
-            write (WarnFileNum, *) 'Optimization warning: savings hitting upper bound of', savings_opt
-         else if (savings_opt <= 0d0 .and. OptimizeRet > negativeInf .and. s%ij < JTot - 1) then
-            write (WarnFileNum, *) 'Optimization warning: savings hitting lower bound of', savings_opt
-         end if
       end if
 
    end function OptimizeRet

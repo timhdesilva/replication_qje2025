@@ -21,7 +21,6 @@ MODULE Simulations
    USE EconFunctions, only: flowU, CEF, RA, HELPIncome, DebtPayment, &
                             TaxesTransfers, HELPRate, FloorTransfer, CalcCash, CalcWage
    USE Setup, only: ReadShocks, DeallocShocks
-   USE OptParameters, only: WarnFileNum
    USE OptimizeWork_mod, only: OptimizeCL, OptimizeC
    USE OptimizeRet_mod, only: OptimizeRet
 

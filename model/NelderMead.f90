@@ -1,7 +1,7 @@
 MODULE NelderMead
 
    USE types, only: args_opt
-   USE OptParameters, only: neldertol, nelderstepfrac, neldermaxiter, WarnToConsole, WarnToFile, WarnFileNum
+   USE OptParameters, only: neldertol, nelderstepfrac, neldermaxiter
 
    IMPLICIT NONE
 
@@ -55,13 +55,6 @@ CONTAINS
       xopt = p(iopt, :)
       fopt = y(iopt)
 
-      ! Warnings
-      if (WarnToConsole .eq. 1) then
-         if (flag .ne. 0) print *, 'WARNING from NelderMead: maximum number of iterations exceeded'
-      end if
-      if (WarnToFile .eq. 1) then
-         if (flag .ne. 0) write (WarnFileNum, *) 'WARNING from NelderMead: maximum number of iterations exceeded'
-      end if
 
    CONTAINS
 

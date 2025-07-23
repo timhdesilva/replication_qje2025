@@ -51,7 +51,7 @@ keeps_t = ['c_occupation', 'c_gender', 'c_age_30_june', 'c_self_emp_flag', 'c_lo
            'c_depend_child', 'sp_status_reported']
 keeps_s = ['sb_mem_bal', 'sc_empl_cont', 'sc_pers_cont', 'sc_tot_cont']
 
-# Set data types that cause problems in tax file
+# Set data types that need to be set manually
 dtype = {
         'c_internet_sale':str, 
         'c_pension_age_eligible':float,

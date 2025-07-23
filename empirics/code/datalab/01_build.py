@@ -154,8 +154,7 @@ for yr in range(firstyr, lastyr + 1):
         df_c['medicare_exempt'] = (df_c[mvars].fillna(0).sum(axis = 1) > 0).astype(int)
         df_c = df_c[[idvar, 'medicare_exempt'] + v_context]
         df = df.merge(df_c, how = 'left', on = idvar)
-        # Read and merge in paysum dataset, removing duplicate observations (which
-        # are supposed to occur in this dataset) and summing across remaining observations
+        # Read and merge in paysum dataset, removing duplicate observations
         if yr <= 2019:
             df_ps = read_ATO(yr, 'paysum')
         else:
@@ -194,7 +193,7 @@ for yr in range(firstyr, lastyr + 1):
             v_incloss += ['SUPER_CONTRB_AMT']
         elif yr < 2010:
             v_incloss += ['SUPER_CONTR_PNSN_ANTY_AMT']
-        # Specify what gets added to taxable income (this is incorrect but limited by data availablity)
+        # Specify what gets added to taxable income
         adds = ['zero']
         if yr >= 2007:
             adds += ['RFBS_TOTL_AMT', 'EXMT_FORGN_EMPLT_INCM_AMT']
@@ -226,8 +225,7 @@ for yr in range(firstyr, lastyr + 1):
         # Read and merge in deductions dataset
         df_d = read_ATO(yr, 'ded')[[idvar] + v_deduc]
         df = df.merge(df_d, how = 'left', on = idvar)
-        # Read and merge in paysum dataset, removing duplicate observations (which
-        # are supposed to occur in this dataset) and summing across remaining observations
+        # Read and merge in paysum dataset, removing duplicate observations
         if v_paysum != []:
             df_ps = read_ATO(yr, 'pay-sum')[[idvar] + v_paysum]
             df_ps = df_ps.shuffle(on = [idvar] + v_paysum).map_partitions(lambda x: x.drop_duplicates([idvar] + v_paysum))

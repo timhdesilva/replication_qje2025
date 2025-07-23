@@ -1,19 +1,8 @@
-
-!! This code was taken from Toni Whited's solution code for the 2020 Mitsui Summer School and then
-!! adapted by Tim de Silva on 09/05/2023. The key routine is moorepenrose, which performs a
-!! pseudo-inverse (or generalized-inverse) of a matrix.
-
 MODULE svd
 
    IMPLICIT NONE
 
    integer, parameter :: dp = selected_real_kind(15, 307)
-
-! Based upon routines from the NSWC (Naval Surface Warfare Center),
-! which were based upon LAPACK routines.
-
-! Code converted using TO_F90 by Alan Miller
-! Date: 2003-11-11  Time: 17:50:44
 
 CONTAINS
 

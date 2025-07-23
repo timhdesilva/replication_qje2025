@@ -198,7 +198,7 @@ CONTAINS
 
       !*****************************************************************************80
       !
-        !! HALTON computes an element of a Halton sequence.
+      ! HALTON computes an element of a Halton sequence.
       !
       !  Licensing:
       !
@@ -267,7 +267,7 @@ CONTAINS
 
       !*****************************************************************************80
       !
-        !! PRIME returns any of the first PRIME_MAX prime numbers.
+      ! PRIME returns any of the first PRIME_MAX prime numbers.
       !
       !  Discussion:
       !

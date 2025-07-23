@@ -61,7 +61,7 @@ CONTAINS
       type(state_t) :: s_next
       type(cstate_pt) :: s_next_pt
       real(dp) :: prob_
-      integer :: iz_ ! indexes for integrating over shocks
+      integer :: iz_
 
       ! Set next period states that face no uncertainty
       s_next%ed = s%ed
@@ -71,7 +71,7 @@ CONTAINS
       ! Initialize
       EVf = 0d0
 
-      ! Only try to calculate coninuation value if it's not going to be zero
+      ! Only calculate continuation value if it's not going to be zero
       if (s_next%ij < JTot) then
          ! Calculate liquid wealth next period
          s_next%liqw = RA(p%saving)*p%saving

@@ -91,8 +91,8 @@ program Main_OptimalPolicy
    ! Setup
    ! +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-   ! Make sure you turned down nsim
-   IF (nsim > nsim_op) STOP 'FATAL ERROR: nsim > nsim_op! Change this in Parameters.f90'
+   ! Check simulation parameters
+   IF (nsim > nsim_op) STOP 'FATAL ERROR: nsim > nsim_op! Adjust simulation parameters'
 
    ! Set display and mode
    RunMode = 8
@@ -143,7 +143,7 @@ program Main_OptimalPolicy
             OPEN (331, FILE=filename, STATUS='replace')
          END IF
 
-         ! Reset interest rate, which is affected with OptimalType = 9
+         ! Reset interest rate
          R_d = 1d0
 
          ! Reset turning off saving SimY and SimV
@@ -153,8 +153,7 @@ program Main_OptimalPolicy
          ! Set baseline policy
          Policy(1) = basepcy
 
-         ! Solve and simulate model at baseline policy with endogenous labor supply, if you're going to hold it fixed at this value,
-         ! and reset parameters
+         ! Solve and simulate model at baseline policy and set parameters for fixed labor case
          ReadL = 0
          IF (i_mh .eq. 0) THEN
             CALL SolveSimulate

@@ -3,7 +3,7 @@ MODULE EconFunctions
    USE Parameters, only: dp, negativeInf, epsl, procid, beta, gamma, invEIS, phi, cprob, fcL, fcH, kappa, &
                          constraintB, wedgeB, floorC, survival, eqscale, FixLabor, JTot, JWork, AProfile, &
                          numeraire, DebtPayoff, Policy, R, HELPTsh04, HELPTsh05, R_d, price04, &
-                         smoothtax, RunMode, c_gain, mu_d, sigma_d, ForceFixedPayoff, OptimalP, OptimalType
+                         smoothtax, RunMode, c_gain, mu_d, sigma_d, OptimalP, OptimalType
 
    USE types
 
@@ -417,7 +417,7 @@ CONTAINS
    end function Smooth_UI
 
    ! Function to calculate total taxes and transfers paid/received
-   !! Note: positive = outflow for government
+   ! Note: positive values represent government outflows
    real(dp) function TaxesTransfers(ij_t, pcy, income_t, wealth_t)
       IMPLICIT NONE
       integer, intent(in) :: ij_t, pcy
@@ -479,7 +479,7 @@ CONTAINS
       real(dp), intent(in) :: L
       type(state_t), intent(in) :: s
       CashPreDebt = s%liqw + WageIncome(L, s)
-      if (s%ij <= JWork) then ! default to first policy in retirement to reduce state variables
+      if (s%ij <= JWork) then
          CashPreDebt = CashPreDebt + TaxesTransfers(s%ij, Policy(s%ipcy), HELPIncome(L, s), s%liqw)
       else
          CashPreDebt = CashPreDebt + TaxesTransfers(s%ij, Policy(1), HELPIncome(L, s), s%liqw)

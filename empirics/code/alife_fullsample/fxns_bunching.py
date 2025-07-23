@@ -1,4 +1,3 @@
-# Module imports
 import pandas as pd
 import numpy as np
 from patsy import dmatrix
@@ -188,10 +187,7 @@ def cfdensity_tsh(df_in, binw, n_below, n_above, tsh, method, dof, var, denvar):
         elif 'above' in x:
             above += fit.params[x]
     # Calculate bunching statistic: excess mass as % of CF density
-    ## Note: Chetty et al. (2011) do .mean() here instead of .sum(), not sure why,
-    ## and they use average over both 'below' = 1 and 'above' = 1
     cf_below = df[df['below'] == 1]['cf_' + denvar].sum()
-    #cf_below = df[df['below'] + df['above'] > 0]['cf_' + denvar].mean() # Chetty statistic
     bstat = below / cf_below
     # Error in integration constraint
     error = (below + above)/max(abs(below), 0.001)

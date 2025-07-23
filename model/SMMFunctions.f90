@@ -20,7 +20,6 @@ MODULE SMMFunctions
    IMPLICIT NONE
 
    ! SMM Parameters
-   logical, parameter :: ParallelMom = .TRUE. ! parallelize moment calculation
    integer, parameter :: n_pms = 16 ! number of parameters optimizing over
    integer, parameter :: n_restarts = 2 ! number of restarts in if SMMOptimizer = 1
    real(dp), dimension(n_pms) :: x = (/ &
@@ -413,7 +412,7 @@ CONTAINS
 #endif
 
       ! Parameter controlling parallelization
-      parmpi = mpiprocs >= 5 .and. ParallelMom
+      parmpi = mpiprocs >= 5
 
       ! Read in variables needed
       allocate (SimWL(nsim, JWork))
@@ -966,7 +965,7 @@ CONTAINS
 #endif
 
       ! Parameter controlling parallelization
-      parmpi = mpiprocs >= 7 .and. ParallelMom
+      parmpi = mpiprocs >= 7
 
       ! Years for calculating income distribution
       allocate (yr_pre(3), yr_post(3))
