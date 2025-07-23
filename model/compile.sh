@@ -22,9 +22,8 @@ fi
 cores=$2
 echo "Number of cores: $cores"
 
-# Clean environment and files
+# Clean environment
 ./clean.sh
-fprettify *.f90
 
 # Load compiler
 module load intel/2020-04
@@ -33,7 +32,7 @@ COMP="mpiifort"
 
 # Compiler options
 OPTIONS=" -cpp"
-OPTIONS="${OPTIONS} -O3"
+OPTIONS="${OPTIONS} -Ofast"
 OPTIONS="${OPTIONS} -DMPI"
 OPTIONS="${OPTIONS} -heap-arrays"
 OPTIONS="${OPTIONS} -mcmodel=large"
