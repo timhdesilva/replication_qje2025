@@ -1,8 +1,8 @@
 set -e
 
 # Check arguments
-if [ $# -lt 2 ]; then
-    echo "You need to pass at least two arguments!"
+if [ $# -ne 2 ]; then
+    echo "You need to pass two arguments: <mode> <number of cores>"
     exit 1
 fi
 
@@ -19,88 +19,24 @@ elif [ $mode -eq 4 ]; then
 elif [ $mode -eq 8 ]; then
     echo "Mode: Optimal Policy"
 fi
-loc=$2
-if [ $loc -eq 1 ]; then
-    echo "Location: local"
-elif [ $loc -eq 2 ]; then
-    echo "Location: SuperCloud"
-fi
-cores=${3:-1}
+cores=$2
 echo "Number of cores: $cores"
-debug=${4:-0}
-if [ $debug -eq 0 ]; then
-    echo "Debug flags: OFF"
-else
-    echo "Debug flags: ON"
-fi
-strictfp=${5:-0}
-if [ $strictfp -eq 0 ]; then
-    echo "FP Model: FAST"
-else
-    echo "FP Model: STRICT"
-fi
 
 # Clean environment and files
 ./clean.sh
 fprettify *.f90
 
 # Load compiler
-if [ $loc -eq 1 ]; then
-    COMP="gfortran"
-elif [ $loc -eq 2 ]; then
-    export TMPDIR=/state/partition1/user/$USER
-    module load intel-oneapi/2023.1
-    COMP="mpiifort"
-fi
+export TMPDIR=/state/partition1/user/$USER
+module load intel-oneapi/2023.1
+COMP="mpiifort"
 
 # Compiler options
 OPTIONS=" -cpp"
-if [ $debug -gt 0 ]; then
-    if [ $COMP == "ifort" ] || [ $COMP == "mpiifort" ]; then
-        OPTIONS="${OPTIONS} -C -g -traceback -check noarg_temp_created"
-    else
-        OPTIONS="${OPTIONS} -O0 -C -g -fbacktrace -fcheck=all -Wall -Wextra -finit-real=snan -fsignaling-nans -ffpe-trap=invalid,zero,overflow"
-    fi
-else
-    if [ $COMP == "ifort" ] || [ $COMP == "mpiifort" ]; then
-        OPTIONS="${OPTIONS} -Ofast"
-    else
-        OPTIONS="${OPTIONS} -O3"
-    fi
-fi
-if [ $cores -gt 1 ] && [ $loc -eq 1 ]; then
-    if [ $COMP == "ifort" ] || [ $COMP == "mpiifort" ]; then
-        OPTIONS="${OPTIONS} -qopenmp"
-    else
-        OPTIONS="${OPTIONS} -fopenmp"
-    fi
-elif [ $loc -gt 1 ]; then
-    OPTIONS="${OPTIONS} -DMPI"
-fi
-
-# Hybrid OpenMP and MPI on SuperCloud via double-threading
-if [ $cores -gt 1 ] && [ $loc -eq 2 ]; then
-    if [ $COMP == "ifort" ] || [ $COMP == "mpiifort" ]; then
-        OPTIONS="${OPTIONS} -qopenmp"
-    else
-        OPTIONS="${OPTIONS} -fopenmp"
-    fi
-fi
-
-# Additional ifort options that need to be adjusted (can in principle run without this)
-if [ $COMP == "ifort" ] || [ $COMP == "mpiifort" ]; then
-    OPTIONS="${OPTIONS} -heap-arrays"
-    if [ $loc -gt 1 ]; then
-        OPTIONS="${OPTIONS} -mcmodel=large"
-    fi
-fi
-
-# Strict floating point model
-if [ $strictfp -gt 0 ]; then
-    if [ $COMP == "ifort" ] || [ $COMP == "mpiifort" ]; then
-            OPTIONS="${OPTIONS} -fp-model=strict"
-        fi
-fi
+OPTIONS="${OPTIONS} -O3"
+OPTIONS="${OPTIONS} -DMPI"
+OPTIONS="${OPTIONS} -heap-arrays"
+OPTIONS="${OPTIONS} -mcmodel=large"
 
 # Compile
 COMP="${COMP} ${OPTIONS}
@@ -136,22 +72,5 @@ echo $COMP
 $COMP
 
 # Run
-if [ $loc -eq 1 ]; then
-    export OMP_NUM_THREADS=$cores
-    ./a.out
-    if [ $mode -eq 0 ]; then
-        python ToStata_GS.py
-    elif [ $mode -eq 4 ]; then
-        python ToPcl_ComparePolicies.py
-    elif [ $mode -eq 8 ]; then
-        python ToPcl_OptimalPolicy.py
-    fi
-elif [ $loc -eq 2 ]; then
-    if [ $mode -eq 0 ]; then
-        n_per_task=4 # number of CPUs needed when LCSimPanel=1 to avoid memory overflow
-        n_tasks=$(( (cores + n_per_task - 1) / n_per_task ))
-        job1=$(sbatch --export=mode=$mode --ntasks=$n_tasks --cpus-per-task=$n_per_task SuperCloud.slurm | awk '{print $4}')
-        sbatch --dependency=afterok:$job1 Mode0_SuperCloud.slurm
-    fi
-    module purge
-fi
+sbatch --export=mode=$mode --ntasks=$cores job.slurm
+module purge
