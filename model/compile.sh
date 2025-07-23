@@ -27,8 +27,8 @@ echo "Number of cores: $cores"
 fprettify *.f90
 
 # Load compiler
-export TMPDIR=/state/partition1/user/$USER
-module load intel-oneapi/2023.1
+module load intel/2020-04
+module load impi/2020-04
 COMP="mpiifort"
 
 # Compiler options
