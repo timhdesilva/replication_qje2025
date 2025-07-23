@@ -26,13 +26,14 @@ echo "Number of cores: $cores"
 ./clean.sh
 
 # Load compiler
-module load intel/2020-04
-module load impi/2020-04
+export TMPDIR=/state/partition1/user/$USER
+module load intel-oneapi/2023.1
 COMP="mpiifort"
 
 # Compiler options
 OPTIONS=" -cpp"
 OPTIONS="${OPTIONS} -Ofast"
+OPTIONS="${OPTIONS} -qopenmp"
 OPTIONS="${OPTIONS} -DMPI"
 OPTIONS="${OPTIONS} -heap-arrays"
 OPTIONS="${OPTIONS} -mcmodel=large"
@@ -71,5 +72,11 @@ echo $COMP
 $COMP
 
 # Run
-sbatch --export=mode=$mode --ntasks=$cores job.slurm
+if [ $mode -eq 0 ]; then
+    n_per_task=4 # number of CPUs to avoid memory overflow
+    n_tasks=$(( (cores + n_per_task - 1) / n_per_task ))
+    sbatch --export=mode=$mode --ntasks=$n_tasks --cpus-per-task=$n_per_task job.slurm
+else
+    sbatch --export=mode=$mode --ntasks=$cores job.slurm
+fi
 module purge

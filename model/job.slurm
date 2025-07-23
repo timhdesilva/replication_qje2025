@@ -1,21 +1,27 @@
 #!/bin/bash
 
-#SBATCH --partition=sched_mit_sloan_batch
+#SBATCH --partition=xeon-p8
 #SBATCH -o run.%j.out
 #SBATCH --no-requeue
-#SBATCH --time=4-00:00
+#SBATCH --time=14-00:00
 #SBATCH --mem-per-cpu=4000MB
-#SBATCH --constraint="centos7"
 #SBATCH --exclusive
 
 # Print parameters
 echo "Number of nodes: $SLURM_NNODES"
-echo "Number of cores: $SLURM_NTASKS"
+echo "Number of tasks: $SLURM_NTASKS"
+echo "Number of CPUs per task: $SLURM_CPUS_PER_TASK"
+
+# Double thread on each CPU
+if [ $mode -eq 0 ] || [ $mode -eq 12 ]; then
+    export OMP_NUM_THREADS=$(( 2 * SLURM_CPUS_PER_TASK ))
+else
+    export OMP_NUM_THREADS=2
+fi
 
 # Load MPI
 module purge
-module load intel/2020-04
-module load impi/2020-04
+module load intel-oneapi/2023.1
 
 # Run
 ulimit -s unlimited
